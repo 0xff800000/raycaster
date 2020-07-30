@@ -106,7 +106,7 @@ void Player::draw() {
     glVertex2i(x,y);
     glEnd();
 
-	glLineWidth(3.0);
+    glLineWidth(3.0);
     glBegin(GL_LINES);
     glVertex2i(x,y);
     const float l = 20;
@@ -179,7 +179,7 @@ void Player::castRay(float angle, float& dist, int& face) {
     casted_rayy = cy;
     casted_dist = currDist;
 
-	glLineWidth(3.0);
+    glLineWidth(3.0);
     glColor3f(1,0,0);
     glBegin(GL_LINES);
     glVertex2i(x,y);
@@ -228,7 +228,7 @@ void Player::castRay(float angle, float& dist, int& face) {
     dist = cos(ca)*sqrt(pow(x-casted_rayx,2)+pow(y-casted_rayy,2));
 
 
-	glLineWidth(1.0);
+    glLineWidth(1.0);
     glColor3f(0,1,0);
     glBegin(GL_LINES);
     glVertex2i(x,y);
@@ -290,7 +290,7 @@ void Player::draw3D(std::vector<float>& rays,std::vector<int>& faces) {
 }
 
 void init(void) {
-	glClearColor(0.3, 0.3, 0.3, 0.0);
+    glClearColor(0.3, 0.3, 0.3, 0.0);
     gluOrtho2D(0,WIDTH,HEIGHT,0);
 }
 
@@ -298,7 +298,7 @@ Map map;
 Player player(&map);
 
 void display(void) {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     map.draw();
     player.draw();
     glFlush();
@@ -306,31 +306,31 @@ void display(void) {
 }
 
 void keyboard_cb(unsigned char key, int x, int y) {
-	switch((char)key) {
-		case 'w':
+    switch((char)key) {
+        case 'w':
             player.move(1);
             break;
-		case 's':
+        case 's':
             player.move(-1);
             break;
-		case 'd':
+        case 'd':
             player.strafe(1);
             break;
-		case 'a':
+        case 'a':
             player.strafe(-1);
             break;
-		case 'q':
+        case 'q':
             player.rotate(-1);
             break;
-		case 'e':
+        case 'e':
             player.rotate(1);
             break;
-		case 27:    /* ESC */
-			glutDestroyWindow(win_handler);
-			exit(0);
-		default:
-			break;
-	}
+        case 27:    /* ESC */
+            glutDestroyWindow(win_handler);
+            exit(0);
+        default:
+            break;
+    }
     glutPostRedisplay();
 }
 
@@ -338,20 +338,20 @@ int main(int argc, char *argv[]) {
     map.loadData("map.txt");
     map.print();
 
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
-	glutInitWindowSize(WIDTH, HEIGHT);
-	win_handler = glutCreateWindow("Raycaster" );
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
+    glutInitWindowSize(WIDTH, HEIGHT);
+    win_handler = glutCreateWindow("Raycaster" );
 
 
     init();
 
-	glutKeyboardFunc(keyboard_cb);
-	glutDisplayFunc(display);
+    glutKeyboardFunc(keyboard_cb);
+    glutDisplayFunc(display);
 
-	glutMainLoop();
+    glutMainLoop();
 
-	return 0;
+    return 0;
 }
 
 
