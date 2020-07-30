@@ -51,8 +51,8 @@ void Map::print() {
 
 void Map::draw() {
     if (!display_map) return;
-    for(int y=0; y<map.size(); y++) {
-        for(int x=0; x<map[y].size(); x++) {
+    for(unsigned y=0; y<map.size(); y++) {
+        for(unsigned x=0; x<map[y].size(); x++) {
             int x0=x*sqrSize,y0=y*sqrSize;
             int x1=(x+1)*sqrSize,y1=(y+1)*sqrSize;
             if(map[y][x] == 1) glColor3f(1,1,1); else glColor3f(0,0,0);
@@ -160,7 +160,7 @@ void Player::rotate(const int da) {
 }
 
 void Player::castRay(float angle, float& dist, int& face) {
-    float casted_rayx, casted_rayy, casted_dist;
+    float casted_rayx, casted_rayy;
     face = 0;
     // Cast y
     float rx,ry,xo,yo,currDist=0;
@@ -168,7 +168,6 @@ void Player::castRay(float angle, float& dist, int& face) {
     // rx ry
     if(angle > M_PI) ry = floor(y/sqrSize)*sqrSize;
     else if(angle < M_PI) ry = ceil(y/sqrSize)*sqrSize;
-    //else if(angle == 0 || angle == M_PI) {
     else {
         currDist = maxDist;
         ry = 0;
@@ -191,7 +190,6 @@ void Player::castRay(float angle, float& dist, int& face) {
     }
     casted_rayx = cx;
     casted_rayy = cy;
-    casted_dist = currDist;
 
     if (display_map) {
         glLineWidth(3.0);
@@ -235,7 +233,6 @@ void Player::castRay(float angle, float& dist, int& face) {
             sqrt(pow(x-casted_rayx,2)+pow(y-casted_rayy,2))) {
         casted_rayx = cx;
         casted_rayy = cy;
-        casted_dist = currDist;
         face = 1;
     }
 
@@ -279,9 +276,8 @@ void Player::raycast(std::vector<float>& rays, std::vector<int>& faces) {
 
 void Player::draw3D(std::vector<float>& rays,std::vector<int>& faces) {
     int wall_w = WIDTH / nb_rays;
-    int max_height = HEIGHT / 2;
-    for(int i=0; i<rays.size(); i++) {
-        int wall_h = HEIGHT/(rays[i]/10);
+    for(unsigned i=0; i<rays.size(); i++) {
+        int wall_h = HEIGHT/(rays[i]/10); if (wall_h > HEIGHT) wall_h = HEIGHT;
         int x0 = i * wall_w;
         int y0 = (HEIGHT - wall_h)/2;
         int x1 = (i+1) * wall_w;
@@ -347,6 +343,9 @@ void keyboard_cb(unsigned char key, int x, int y) {
             player.toggleMap();
             map.toggleMap();
             break;
+        case 'p':
+            std::cout << "x:" << x << ", y:" << y << std::endl;
+            break;
         case 27:    /* ESC */
             glutDestroyWindow(win_handler);
             exit(0);
@@ -357,7 +356,7 @@ void keyboard_cb(unsigned char key, int x, int y) {
 }
 
 int main(int argc, char *argv[]) {
-    map.loadData("map.txt");
+    map.loadData((char*)"map.txt");
     map.print();
 
     glutInit(&argc, argv);
