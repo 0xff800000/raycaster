@@ -15,16 +15,19 @@ int win_handler;
 class Map {
     public:
         int sqrSize;
+        bool display_map;
         std::vector< std::vector<int> > map;
         void loadData(char*);
         void print();
         void draw();
+        void toggleMap();
         int getXY(float,float);
         Map();
 };
 
 Map::Map(){
     sqrSize = 40;
+    display_map = false;
 }
 
 void Map::loadData(char* path) {
@@ -47,6 +50,7 @@ void Map::print() {
 }
 
 void Map::draw() {
+    if (!display_map) return;
     for(int y=0; y<map.size(); y++) {
         for(int x=0; x<map[y].size(); x++) {
             int x0=x*sqrSize,y0=y*sqrSize;
@@ -62,11 +66,14 @@ void Map::draw() {
     }
 }
 
+void Map::toggleMap() {
+    display_map = !display_map;
+}
+
 int Map::getXY(float x, float y) {
     x = fabs(x); y = fabs(y);
     int ix = fmod((x/sqrSize) , map[0].size());
     int iy = fmod((y/sqrSize) , map.size());
-    std::cout<< ix << " " << iy << std::endl;
     return map[iy][ix];
 }
 
@@ -74,9 +81,11 @@ class Player {
     public:
         float x,y,dir,turnRate,speed,maxDist,fov,color_fadeoff;
         int nb_rays;
+        bool display_map;
         //std::vector<float> rays;
         Map*map;
         void draw();
+        void toggleMap();
         void move(int);
         void strafe(int);
         void rotate(int);
@@ -97,26 +106,33 @@ Player::Player(Map*m) {
     color_fadeoff=300;
     nb_rays = 100;
     fov = 60;
+    display_map = false;
 }
 
 void Player::draw() {
-    glColor3f(0,0,1);
-    glPointSize(8);
-    glBegin(GL_POINTS);
-    glVertex2i(x,y);
-    glEnd();
+    if (display_map) {
+        glColor3f(0,0,1);
+        glPointSize(8);
+        glBegin(GL_POINTS);
+        glVertex2i(x,y);
+        glEnd();
 
-    glLineWidth(3.0);
-    glBegin(GL_LINES);
-    glVertex2i(x,y);
-    const float l = 20;
-    glVertex2i(x+l*cos(dir),y+l*sin(dir));
-    glEnd();
+        glLineWidth(3.0);
+        glBegin(GL_LINES);
+        glVertex2i(x,y);
+        const float l = 20;
+        glVertex2i(x+l*cos(dir),y+l*sin(dir));
+        glEnd();
+    }
 
     std::vector<float> rays;
     std::vector<int> faces;
     raycast(rays, faces);
-    draw3D(rays, faces);
+    if(!display_map) draw3D(rays, faces);
+}
+
+void Player::toggleMap() {
+    display_map = !display_map;
 }
 
 void Player::move(const int dx) {
@@ -163,8 +179,6 @@ void Player::castRay(float angle, float& dist, int& face) {
     yo = (angle > M_PI)? -sqrSize: sqrSize;
     xo = -tan(angle - M_PI/2) * yo;
 
-    std::cout << "angle " << angle << std::endl;
-    
     float cx = rx, cy = ry;
     float distO = sqrt(xo*xo+yo*yo);
     if (currDist == 0) currDist = sqrt(rx*rx+ry*ry);
@@ -179,12 +193,14 @@ void Player::castRay(float angle, float& dist, int& face) {
     casted_rayy = cy;
     casted_dist = currDist;
 
-    glLineWidth(3.0);
-    glColor3f(1,0,0);
-    glBegin(GL_LINES);
-    glVertex2i(x,y);
-    glVertex2i(cx,cy);
-    glEnd();
+    if (display_map) {
+        glLineWidth(3.0);
+        glColor3f(1,0,0);
+        glBegin(GL_LINES);
+        glVertex2i(x,y);
+        glVertex2i(cx,cy);
+        glEnd();
+    }
 
     // Cast x
     currDist = 0;
@@ -228,15 +244,17 @@ void Player::castRay(float angle, float& dist, int& face) {
     dist = cos(ca)*sqrt(pow(x-casted_rayx,2)+pow(y-casted_rayy,2));
 
 
-    glLineWidth(1.0);
-    glColor3f(0,1,0);
-    glBegin(GL_LINES);
-    glVertex2i(x,y);
-    glVertex2i(cx,cy);
-    glEnd();
-    glBegin(GL_POINTS);
-    glVertex2i(casted_rayx,casted_rayy);
-    glEnd();
+    if (display_map) {
+        glLineWidth(1.0);
+        glColor3f(0,1,0);
+        glBegin(GL_LINES);
+        glVertex2i(x,y);
+        glVertex2i(cx,cy);
+        glEnd();
+        glBegin(GL_POINTS);
+        glVertex2i(casted_rayx,casted_rayy);
+        glEnd();
+    }
 }
 
 
@@ -324,6 +342,10 @@ void keyboard_cb(unsigned char key, int x, int y) {
             break;
         case 'e':
             player.rotate(1);
+            break;
+        case 'm':
+            player.toggleMap();
+            map.toggleMap();
             break;
         case 27:    /* ESC */
             glutDestroyWindow(win_handler);
