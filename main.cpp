@@ -82,7 +82,8 @@ class Player {
         float x,y,dir,turnRate,speed,maxDist,fov,color_fadeoff;
         int nb_rays;
         bool display_map;
-        //std::vector<float> rays;
+        std::vector<float> rays;
+        std::vector<int> faces;
         Map*map;
         void draw();
         void toggleMap();
@@ -90,8 +91,8 @@ class Player {
         void strafe(int);
         void rotate(int);
         void castRay(float,float&,int&);
-        void raycast(std::vector<float>&,std::vector<int>&);
-        void draw3D(std::vector<float>&,std::vector<int>&);
+        void raycast();
+        void draw3D();
         Player(Map*);
 };
 
@@ -125,10 +126,8 @@ void Player::draw() {
         glEnd();
     }
 
-    std::vector<float> rays;
-    std::vector<int> faces;
-    raycast(rays, faces);
-    if(!display_map) draw3D(rays, faces);
+    raycast();
+    if(!display_map) draw3D();
 }
 
 void Player::toggleMap() {
@@ -217,7 +216,6 @@ void Player::castRay(float angle, float& dist, int& face) {
     xo = (angle > 3*M_PI/2 || angle < M_PI/2)? sqrSize: -sqrSize;
     yo = tan(angle) * xo;
 
-    
     cx = rx, cy = ry;
     distO = sqrt(xo*xo+yo*yo);
     if (currDist == 0) currDist = sqrt(rx*rx+ry*ry);
@@ -255,7 +253,9 @@ void Player::castRay(float angle, float& dist, int& face) {
 }
 
 
-void Player::raycast(std::vector<float>& rays, std::vector<int>& faces) {
+void Player::raycast() {
+    rays.erase(rays.begin(),rays.begin()+rays.size());
+    faces.erase(faces.begin(),faces.begin()+faces.size());
     // compute fov rad increment
     float fov_rad = fov * M_PI / 180;
     float d_rad = fov_rad / nb_rays;
@@ -273,7 +273,7 @@ void Player::raycast(std::vector<float>& rays, std::vector<int>& faces) {
     }
 }
 
-void Player::draw3D(std::vector<float>& rays,std::vector<int>& faces) {
+void Player::draw3D() {
     // Draw sky
     glColor3f(0.8,0.8,0.8);
     //glColor3f(1,1,1);
