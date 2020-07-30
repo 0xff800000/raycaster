@@ -260,7 +260,6 @@ void Player::raycast(std::vector<float>& rays, std::vector<int>& faces) {
     float fov_rad = fov * M_PI / 180;
     float d_rad = fov_rad / nb_rays;
 
-    
     for(int i=-nb_rays/2; i<nb_rays/2; i++) {
         float angle = dir + i*d_rad;
         if (angle > 2*M_PI)
@@ -275,6 +274,16 @@ void Player::raycast(std::vector<float>& rays, std::vector<int>& faces) {
 }
 
 void Player::draw3D(std::vector<float>& rays,std::vector<int>& faces) {
+    // Draw sky
+    glColor3f(0.8,0.8,0.8);
+    //glColor3f(1,1,1);
+    glBegin(GL_QUADS);
+    glVertex2i(0,0);
+    glVertex2i(0,HEIGHT/2);
+    glVertex2i(WIDTH,HEIGHT/2);
+    glVertex2i(WIDTH,0);
+    glEnd();
+
     int wall_w = WIDTH / nb_rays;
     for(unsigned i=0; i<rays.size(); i++) {
         int wall_h = HEIGHT/(rays[i]/10); if (wall_h > HEIGHT) wall_h = HEIGHT;
