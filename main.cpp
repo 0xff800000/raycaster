@@ -103,9 +103,9 @@ Player::Player(Map*m) {
     turnRate = 0.1;
     speed = 10;
     map = m;
-    maxDist=1000;
+    maxDist=6000;
     color_fadeoff=300;
-    nb_rays = 100;
+    nb_rays = 600;
     fov = 60;
     display_map = false;
 }
@@ -257,15 +257,15 @@ void Player::raycast() {
     rays.erase(rays.begin(),rays.begin()+rays.size());
     faces.erase(faces.begin(),faces.begin()+faces.size());
     // compute fov rad increment
-    float fov_rad = fov * M_PI / 180;
-    float d_rad = fov_rad / nb_rays;
+    const float fov_rad = fov * M_PI / 180;
+    const float d_rad = fov_rad / nb_rays;
 
     for(int i=-nb_rays/2; i<nb_rays/2; i++) {
         float angle = dir + i*d_rad;
         if (angle > 2*M_PI)
             angle = angle - (2*M_PI);
         else if (angle < 0)
-            angle = (float)(2*M_PI) + angle;
+            angle = (2*M_PI) + angle;
         float ray; int face;
         castRay(angle, ray, face);
         rays.push_back(ray);
@@ -284,13 +284,13 @@ void Player::draw3D() {
     glVertex2i(WIDTH,0);
     glEnd();
 
-    int wall_w = WIDTH / nb_rays;
+    float wall_w = (float)WIDTH /(float) nb_rays;
     for(unsigned i=0; i<rays.size(); i++) {
-        int wall_h = HEIGHT/(rays[i]/10); if (wall_h > HEIGHT) wall_h = HEIGHT;
-        int x0 = i * wall_w;
-        int y0 = (HEIGHT - wall_h)/2;
-        int x1 = (i+1) * wall_w;
-        int y1 = HEIGHT - y0;
+        float wall_h = HEIGHT/(rays[i]/10); if (wall_h > HEIGHT) wall_h = HEIGHT;
+        float x0 = i * wall_w;
+        float y0 = (HEIGHT - wall_h)/2;
+        float x1 = (i+1) * wall_w;
+        float y1 = HEIGHT - y0;
 
         float color_fade = rays[i] * (-1.0/color_fadeoff)+1.0;
         color_fade = 1.0;
